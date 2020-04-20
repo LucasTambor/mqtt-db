@@ -19,6 +19,9 @@ class MqttHandler(object):
     #DB
     has_db = False
 
+    #Cloud
+    has_cloud = False
+
     def __init__(self):
         self.client = mqtt.Client(self.CLIENT_ID) #Cria ID unica, broker bloqueia demais acessos com mesma ID
         self.client.on_message = self.on_message # Register callback
@@ -41,6 +44,13 @@ class MqttHandler(object):
 
         if message.topic == self.MQTT_TOPIC_DATA:
             msgRecv = message.payload.decode("utf-8")
+
+            #Send Message to Cloud
+            if self.has_cloud:
+                self.cloud.sendMessage(msgRecv)
+
+            #Deserialize message
+            #TODO Try:
             jsonRecv = json.loads(msgRecv)
             status_cmd = False
 
@@ -68,6 +78,11 @@ class MqttHandler(object):
         print("Saving data to db {}".format(self.db.DB_NAME))
         self.db.saveJson(json)
         # self.db.PrintTable()
+
+    def AddCloudService(self, cloud):
+        self.cloud = cloud
+        self.has_cloud = True
+        print("Adding Cloud Service to MqttHandler: {}".format(self.cloud.CLOUD_SERVICE_NAME))
 
     def Run(self):
         while 1:
