@@ -22,9 +22,16 @@ class MqttHandler(object):
     #Cloud
     has_cloud = False
 
+    #Connection Flag
+    connected = False
+
     def __init__(self):
         self.client = mqtt.Client(self.CLIENT_ID) #Cria ID unica, broker bloqueia demais acessos com mesma ID
-        self.client.on_message = self.on_message # Register callback
+        # Register callbacks
+        self.client.on_message = self.on_message
+        self.client.on_connect = self.on_connect
+        self.client.on_disconnect = self.on_disconnect
+
         print("Connecting to broker at {}".format(self.mqtt_broker_priv))
         self.client.connect(self.mqtt_broker_priv, self.mqtt_port, self.mqtt_keep_alive)
 
@@ -34,6 +41,18 @@ class MqttHandler(object):
     def subscribe(self, topic=""):
         #TODO Add list to subscribe and method to add topics
         self.client.subscribe(self.MQTT_TOPIC_DATA)
+
+    def on_connect(self, client, userdata, flags, rc, properties=None):
+        print("Connection returned {}".format(rc))
+        self.subscribe()
+        self.connected = True
+
+    def on_disconnect(self, client, userdata, rc):
+        self.connected = False
+        print("Client disconected - {}".format(rc))
+
+    def is_connected(self):
+        return self.connected
 
     #Callbacks
     def on_message(self, client, userdata, message):
