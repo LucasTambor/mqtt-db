@@ -12,13 +12,13 @@ class HubIotHandler(object):
         self.DEBUG = debug
 
         if self.DEBUG:
-            print("Creating Hub Iot Handler")
-            print("Connection string: {}".format(conn_str))
+            print("Creating Hub Iot Handler", flush=True)
+            print("Connection string: {}".format(conn_str), flush=True)
         self.CONN_STR = conn_str
 
     def sendMessage(self, msg):
         if self.DEBUG:
-            print("Sending Message to Hub IoT: {}".format(msg))
+            print("Sending Message to Hub IoT: {}".format(msg), flush=True)
         device_client = IoTHubDeviceClient.create_from_connection_string(self.CONN_STR)
         device_client.connect()
         msg = Message(msg)

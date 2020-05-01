@@ -32,7 +32,7 @@ class MqttHandler(object):
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
 
-        print("Connecting to broker at {}".format(self.mqtt_broker_priv))
+        print("Connecting to broker at {}".format(self.mqtt_broker_priv), flush=True)
         self.client.connect(self.mqtt_broker_priv, self.mqtt_port, self.mqtt_keep_alive)
 
     def start(self):
@@ -43,23 +43,23 @@ class MqttHandler(object):
         self.client.subscribe(self.MQTT_TOPIC_DATA)
 
     def on_connect(self, client, userdata, flags, rc, properties=None):
-        print("Connection returned {}".format(rc))
+        print("Connection returned {}".format(rc), flush=True)
         self.subscribe()
         self.connected = True
 
     def on_disconnect(self, client, userdata, rc):
         self.connected = False
-        print("Client disconected - {}".format(rc))
+        print("Client disconected - {}".format(rc), flush=True)
 
     def is_connected(self):
         return self.connected
 
     #Callbacks
     def on_message(self, client, userdata, message):
-        print("#########################################")
-        print("Message Received: {}".format(message.payload.decode("utf-8")))
-        print("Message Topic: {}".format(message.topic))
-        print("Message QoS: {}".format(message.qos))
+        print("#########################################", flush=True)
+        print("Message Received: {}".format(message.payload.decode("utf-8")), flush=True)
+        print("Message Topic: {}".format(message.topic), flush=True)
+        print("Message QoS: {}".format(message.qos), flush=True)
 
         if message.topic == self.MQTT_TOPIC_DATA:
             msgRecv = message.payload.decode("utf-8")
@@ -81,7 +81,7 @@ class MqttHandler(object):
                 "CMD": status_cmd,
             }
 
-            print(json.dumps(command))
+            print(json.dumps(command), flush=True)
             client.publish(self.MQTT_TOPIC_CMD, json.dumps(command))
 
             if(self.has_db):
@@ -91,17 +91,17 @@ class MqttHandler(object):
     def AddPersister(self, db):
         self.db = db
         self.has_db = True
-        print("Adding DB to MqttHandler: {}".format(self.db.DB_NAME))
+        print("Adding DB to MqttHandler: {}".format(self.db.DB_NAME), flush=True)
 
     def saveJsonToDb(self, json):
-        print("Saving data to db {}".format(self.db.DB_NAME))
+        print("Saving data to db {}".format(self.db.DB_NAME), flush=True)
         self.db.saveJson(json)
         # self.db.PrintTable()
 
     def AddCloudService(self, cloud):
         self.cloud = cloud
         self.has_cloud = True
-        print("Adding Cloud Service to MqttHandler: {}".format(self.cloud.CLOUD_SERVICE_NAME))
+        print("Adding Cloud Service to MqttHandler: {}".format(self.cloud.CLOUD_SERVICE_NAME), flush=True)
 
     def Run(self):
         while 1:
